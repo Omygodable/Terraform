@@ -1,15 +1,58 @@
 Домашнее задание 1 Terraform
 
-Чек-лист готовнисти к домашнему заданию пройден. 
+Чек-лист готовнисти к домашнему заданию пройден.  Установлена верси 1.9.8.
 
 
 1) Репозиторий загружен
-2) Личный конфигурационный файл Terraform для хранения секретов должен называться именно personal.auto.tfvars.
-Этот файл специально исключён из системы контроля версий Git (!personal.auto.tfvars).
- 
-3) 
-4)
-5)
-6)
-7)
-8)
+
+2) Ответ - personal.auto.tfvars.
+Этот файл специально исключён из системы контроля версий Git (!personal.auto.tfvars) в файле .gitignore.
+
+3) "result": "jp1OCk2KEe4k3vUY"
+
+4) ошибки после разархиваци:
+- каждая декларация ресурса должна иметь два label: тип ресурса и его имя
+- Имя контейнера начинается с цифры (1nginx).
+- В строке name  допущена ошибка в названии переменной - добалвено FAKE.
+
+5) исправленная версия кода. 
+resource "docker_image" "nginx_image" {
+  name         = "nginx:latest"
+  keep_locally = true
+}
+
+resource "docker_container" "my_nginx" {
+  image = docker_image.nginx_image.image_id
+  name  = "example_${random_password.random_string.result}"
+
+  ports {
+    internal = 80
+    external = 9090
+  }
+}
+
+Вывод команды docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
+2de509fd32da   9d0e6f6199dc   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:9090->80/tcp   example_jp1OCk2KEe4k3vUY                       
+
+
+6) Ключ -auto-approve заставляет Terraform автоматически подтвердить любое предложение по изменениям, не дожидаясь подтверждения пользователя.
+Опасность заключается в том, что отсутвует контроль за изменениями и не будет возможности отменить вносимые изменения. Так что скорее всего такой подход является актуальным при задествии на тестовых стендах либо с минимальными изменениями.
+
+Вывод команды docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                  NAMES
+6da008aa84d4   9d0e6f6199dc   "/docker-entrypoint.…"   16 seconds ago   Up 16 seconds   0.0.0.0:9090->80/tcp   hello_world
+
+7)The state file is empty. No resources are represented.
+terraform.tfstate после удаления ресурсов
+{
+  "version": 4,
+  "terraform_version": "1.9.8",
+  "serial": 17,
+  "lineage": "d212a5ff-babc-d286-ddbf-cb206d0abace",
+  "outputs": {},
+  "resources": [],
+  "check_results": null
+}
+8) Образ Docker (nginx:latest) не был удалён, потому что в коде, который использовался для создания инфраструктуры, ресурс docker_image был создан с параметром keep_locally = true.
+keep_locally (Boolean) If true, then the Docker image won't be deleted on destroy operation. If this is false, it will delete the image from the docker local storage on destroy operation.

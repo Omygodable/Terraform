@@ -1,3 +1,7 @@
+data "yandex_compute_image" "debian" {
+  family = "debian-11"
+}
+
 resource "yandex_compute_instance" "web_server" {
   count = 2
 
@@ -10,7 +14,7 @@ resource "yandex_compute_instance" "web_server" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd8jgooo35tigfr6kj9g" # Debian 11 Image ID
+      image_id = data.yandex_compute_image.debian.id
     }
   }
 
@@ -18,7 +22,7 @@ resource "yandex_compute_instance" "web_server" {
     subnet_id = yandex_vpc_subnet.develop.id
     nat       = true
   }
-  
+
   metadata = {
     ssh-keys = var.public_ssh_key
   }

@@ -1,3 +1,8 @@
+variable "image_family" {
+  type        = string
+  default     = "debian-11"
+  description = "Семейство образа операционной системы"
+}
 ###cloud vars
 variable "token" {
   type        = string

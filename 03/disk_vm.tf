@@ -1,3 +1,7 @@
+data "yandex_compute_image" "debian" {
+  family = "debian-11"
+}
+
 resource "yandex_compute_disk" "data_disks" {
   count   = 3
   name    = "data-disk-${count.index}"
@@ -5,6 +9,7 @@ resource "yandex_compute_disk" "data_disks" {
   zone    = var.default_zone
   type    = "network-hdd"
 }
+
 resource "yandex_compute_instance" "storage" {
   name = "storage"
 
@@ -15,7 +20,7 @@ resource "yandex_compute_instance" "storage" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd8jgooo35tigfr6kj9g" 
+      image_id = data.yandex_compute_image.debian.id
     }
   }
 
